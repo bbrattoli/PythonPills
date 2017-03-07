@@ -1,4 +1,4 @@
-# Temporal Permutation LSTM
+# PythonPills: examples collection
 Created by [Biagio Brattoli](https://bbrattoli.github.io/homepage/)
 
 PythonPills is a container of small tutorials and examples on different frameworks covering a wide number of topics expecially useful for machine learning. The goal of this project is maily keeping memos of interesting features of a library which I encounter during my job. 
