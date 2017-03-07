@@ -59,8 +59,8 @@ def test_optimization():
     normilize = [1,5]
     
     ###############  DATA  ##################
-    points_A = np.random.normal(loc=[1,1],scale=0.5,size=(50,2))
-    points_B = np.random.normal(loc=[3,3],scale=0.5,size=(50,2))
+    points_A = np.random.normal(loc=[1,1],scale=0.5,size=(10,2))
+    points_B = np.random.normal(loc=[3,3],scale=0.5,size=(10,2))
     
     dist_set1 = squareform(pdist(points_A,'euclidean'))
     dist_set2 = squareform(pdist(points_B,'euclidean'))
@@ -70,7 +70,8 @@ def test_optimization():
     t1 = time()
     X1, X2 = select_sequences_optimization(dist_set1,dist_set2,distance12,beta,normilize)
     print('Optimization done in %.2f'%(time()-t1))
-    
+    X1 = X1.reshape(-1)
+    X2 = X2.reshape(-1)
     ###############  VISUALIZATION  ##################
     plt.subplot(1,2,1)
     plt.plot(points_A[:,0],points_A[:,1],col[0]+'.',markersize=15)
