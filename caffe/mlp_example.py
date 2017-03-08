@@ -8,8 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from time import time
 import sys
-
-sys.path.append("/export/home/bbrattol/caffe_compvisgpu03/python")
 import caffe
 
 #import os
