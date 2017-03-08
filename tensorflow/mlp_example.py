@@ -13,17 +13,24 @@ import tensorflow as tf
 # Data
 points_A = np.random.normal(loc=[1,1],scale=0.5,size=(600,2))
 points_B = np.random.normal(loc=[3,3.5],scale=1.0,size=(600,2))
+points_C = np.random.normal(loc=[0.5,3.5],scale=0.8,size=(600,2))
 
 train_A = points_A[0:500,:]
 test_A  = points_A[500:,:]
 train_B = points_B[0:500,:]
 test_B  = points_B[500:,:]
+train_C = points_C[0:500,:]
+test_C  = points_C[500:,:]
 
-train_X = np.concatenate([train_A,train_B],axis=0)
-train_y = np.concatenate([np.ones(train_A.shape[0]),np.zeros(train_B.shape[0])],axis=0)
+train_X = np.concatenate([train_A,train_B,train_C],axis=0)
+train_y = np.concatenate([0*np.ones(train_A.shape[0]),
+                          1*np.ones(train_B.shape[0]),
+                          2*np.ones(train_C.shape[0])],axis=0)
 
-test_X = np.concatenate([test_A,test_B],axis=0)
-test_y = np.concatenate([np.ones(test_A.shape[0]),np.zeros(test_B.shape[0])],axis=0)
+test_X = np.concatenate([test_A,test_B,test_C],axis=0)
+test_y = np.concatenate([0*np.ones(test_A.shape[0]),
+                         1*np.ones(test_B.shape[0]),
+                         2*np.ones(test_C.shape[0])],axis=0)
 
 # Network definition
 def rand_var(shape):
@@ -47,8 +54,8 @@ with tf.variable_scope('layer2'):
     h2 = tf.add(tf.matmul(h1,h2_w),h2_b, name='h2')
 
 with tf.variable_scope('output'):
-    out_w = tf.Variable(rand_var((int(h2.get_shape()[1]),2)), name='weight', trainable=True)
-    out_b = tf.Variable(const_var((2,)), name='bias', trainable=True)
+    out_w = tf.Variable(rand_var((int(h2.get_shape()[1]),3)), name='weight', trainable=True)
+    out_b = tf.Variable(const_var((3,)), name='bias', trainable=True)
     out = tf.add(tf.matmul(h2,out_w),out_b, name='out')
     prob = tf.nn.softmax(out, name='prob')
 
@@ -80,7 +87,7 @@ p = np.random.permutation(N)
 train_X = train_X[p,:]
 train_y = train_y[p]
 
-for ii in xrange(1000):
+for ii in xrange(2000):
     t1 = time()
     batch_idx = ii%B
     feed_dict_train = {x: train_X[batch_size*batch_idx:batch_size*(batch_idx+1)],
@@ -90,7 +97,7 @@ for ii in xrange(1000):
     if ii%50==0:
         print 'Iter %d, Loss=%.3f, Train Accuracy= %.3f done in %.3f'%(ii,loss,acc,time()-t1)
 
-# Train
+# Test
 feed_dict_test = {x: test_X, y: test_y}
 acc,loss = sess.run([accuracy,cost], feed_dict=feed_dict_test)
 
