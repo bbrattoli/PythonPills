@@ -10,22 +10,14 @@ from time import time
 
 import tensorflow as tf
 
-def rand_var(shape):
-    return tf.truncated_normal(shape, stddev=0.01)
-
-def const_var(shape):
-    return tf.constant(0.1, shape=shape)
-
-col = ['b','r']
-
 # Data
-points_A = np.random.normal(loc=[1,1],scale=0.5,size=(250,2))
-points_B = np.random.normal(loc=[2,2],scale=0.5,size=(250,2))
+points_A = np.random.normal(loc=[1,1],scale=0.5,size=(600,2))
+points_B = np.random.normal(loc=[3,3.5],scale=1.0,size=(600,2))
 
-train_A = points_A[0:200,:]
-test_A  = points_A[200:,:]
-train_B = points_B[0:200,:]
-test_B  = points_B[200:,:]
+train_A = points_A[0:500,:]
+test_A  = points_A[500:,:]
+train_B = points_B[0:500,:]
+test_B  = points_B[500:,:]
 
 train_X = np.concatenate([train_A,train_B],axis=0)
 train_y = np.concatenate([np.ones(train_A.shape[0]),np.zeros(train_B.shape[0])],axis=0)
@@ -34,6 +26,12 @@ test_X = np.concatenate([test_A,test_B],axis=0)
 test_y = np.concatenate([np.ones(test_A.shape[0]),np.zeros(test_B.shape[0])],axis=0)
 
 # Network definition
+def rand_var(shape):
+    return tf.truncated_normal(shape, stddev=0.01)
+
+def const_var(shape):
+    return tf.constant(0.1, shape=shape)
+
 with tf.variable_scope('input'):
     x = tf.placeholder(tf.float32, (None,2), name='x')
     y = tf.placeholder(tf.int64, (None,), name='y')
@@ -82,7 +80,7 @@ p = np.random.permutation(N)
 train_X = train_X[p,:]
 train_y = train_y[p]
 
-for ii in xrange(5000):
+for ii in xrange(1000):
     t1 = time()
     batch_idx = ii%B
     feed_dict_train = {x: train_X[batch_size*batch_idx:batch_size*(batch_idx+1)],
@@ -93,8 +91,27 @@ for ii in xrange(5000):
         print 'Iter %d, Loss=%.3f, Train Accuracy= %.3f done in %.3f'%(ii,loss,acc,time()-t1)
 
 # Train
-feed_dict_train = {x: test_X, y: test_y}
-_,acc,loss = sess.run([train_op,accuracy,cost], feed_dict=feed_dict_train)
+feed_dict_test = {x: test_X, y: test_y}
+acc,loss = sess.run([accuracy,cost], feed_dict=feed_dict_test)
 
 print 'Test Loss=%.3f, Test Accuracy= %.3f'%(loss,acc)
+
+
+# Plotting decision regions
+x_min, x_max = test_X[:, 0].min() - 1, test_X[:, 0].max() + 1
+y_min, y_max = test_X[:, 1].min() - 1, test_X[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
+                     np.arange(y_min, y_max, 0.1))
+
+#f, axarr = plt.subplots(1,1, sharex='col', sharey='row', figsize=(10, 8))
+
+feed_dict = {x: np.c_[xx.ravel(), yy.ravel()]}
+Z = sess.run(pred, feed_dict=feed_dict)
+Z = Z.reshape(xx.shape)
+
+plt.contourf(xx, yy, Z, alpha=0.4)
+plt.scatter(test_X[:, 0], test_X[:, 1], c=test_y, alpha=0.8)
+plt.set_title('Decision boundaries')
+
+plt.show()
 
