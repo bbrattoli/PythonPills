@@ -10,20 +10,21 @@ from scipy.io import loadmat
 import torch.utils.data as data
 from scipy.misc import imread, imresize
 
-os.chdir("/export/home/bbrattol/git/PythonPills/deep-learning-framework/PyTorch/")
+#os.chdir("/export/home/bbrattol/git/PythonPills/deep-learning-framework/PyTorch/")
 
 class Flowers17(data.Dataset):
-    def __init__(self,is_train=True,data_path='./data/'):
+    def __init__(self,is_train=True,data_path='./data/',size=28):
         self.set = 'test'
         if is_train:
             self.set = 'train'
         self.info, self.images_dir = self.__dataset_info(data_path=data_path)
         self.N = len(self.info['x_'+self.set])
+        self.size = size
     
     def __getitem__(self, index):
         image = self.info['x_'+self.set][index]
         label = self.info['y_'+self.set][index]
-        img = imresize(imread(self.images_dir+image),[28,28])
+        img = imresize(imread(self.images_dir+image),[self.size,self.size])
         return img.astype(np.float32).transpose((2,0,1)), int(label-1)
         
     def __len__(self):
